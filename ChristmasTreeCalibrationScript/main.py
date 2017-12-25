@@ -2,6 +2,7 @@ from PIL import Image, ImageTk
 from urllib import request
 from statistics import mean
 import tkinter
+from serial import Serial
 
 def get_image(url):
 
@@ -59,18 +60,44 @@ def get_maximums_from_urls(urls):
 
     return [find_maximum(get_image(url)) for url in urls]
 
+def order_arduino_led_number(arduino_connection, number):
+
+    arduino_connection.write(bytes(str(number)+"\n","ascii"))
+    return_message = ""
+    str_in = arduino_connection.readline()
+    return_message = str(str_in, 'ascii')
+    if (return_message.strip() == '') or (int(return_message) != number):
+        print("Communication error. Sent {} and read back as {}. Resending.".format(
+            number,return_message))
+        order_arduino_led_number(arduino_connection, number)
+
+
 if __name__ == "__main__":
     
     urls = ["http://192.168.10.43/image.jpg",
             "http://192.168.10.35:8080/stream/live.jpg"]
 
+    arduino_serial_address = "/dev/ttyACM0"
+
+    serial_speed = 115200
+
     cam1_list = []
     cam2_list = []
 
+    arduino_connection = Serial(arduino_serial_address, serial_speed, timeout=1)
+        
+    '''
+    for i in range(150):
+        print(i)
+        order_arduino_led_number(arduino_connection, i)
+        from time import sleep
+        sleep(1)
+    '''
     while True:
 
+        order_arduino_led_number(arduino_connection, len(cam1_list))
         cmd = input(">")
-        
+
         if cmd == "":
 
             cam1,cam2 = get_maximums_from_urls(urls)
