@@ -1,4 +1,5 @@
 #include <FastLED.h>
+#include <math.h>
 #define NUM_LEDS 150
 #define DATA_PIN 13
 
@@ -506,6 +507,17 @@ void rainbow_horizontal(int led, unsigned long time) {
 
 }
 
+void rainbow_angle(int led, unsigned long time) {
+  int centerx = 50;
+  int centery = 50;
+
+  float angle = float(atan2(YCOORD[led] - centery, XCOORD[led] - centerx))/(2*3.1415926)*255;
+
+  leds[led] = CHSV( int(angle + time/80)%255, 255, 128);
+
+}
+
+
 void coolball(int led, unsigned long time) {
   
   const int centerx = 50;
@@ -623,7 +635,7 @@ void effect_transition_scroll(void (*effect1)(int led, unsigned long time), void
 }
 
 void loop() {
-    run_effect(rainbow_horizontal, 0, NUM_LEDS, 7000);
+    run_effect(rainbow_angle, 0, NUM_LEDS, 7000);
     //effect_transition_scroll(coolball_presentation, sweep_presentation, 1000);
     //run_effect(sweep_presentation, 0, NUM_LEDS, 7000);
     //effect_transition_scroll(sweep_presentation, sweep2_presentation, 1000);
