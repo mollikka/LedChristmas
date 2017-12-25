@@ -497,6 +497,15 @@ void radar(int led, unsigned long time) {
   leds[led] = CHSV(0,2*v,v);
 }
 
+void rainbow_horizontal(int led, unsigned long time) {
+  int centerx = 50;
+  int centery = 50;
+  int centerz = 50;
+
+  leds[led] = CHSV( (time/80 + XCOORD[led]*2)%255, 255, 128);
+
+}
+
 void coolball(int led, unsigned long time) {
   
   const int centerx = 50;
@@ -614,7 +623,7 @@ void effect_transition_scroll(void (*effect1)(int led, unsigned long time), void
 }
 
 void loop() {
-    run_effect(natural, 0, NUM_LEDS, 7000);
+    run_effect(rainbow_horizontal, 0, NUM_LEDS, 7000);
     //effect_transition_scroll(coolball_presentation, sweep_presentation, 1000);
     //run_effect(sweep_presentation, 0, NUM_LEDS, 7000);
     //effect_transition_scroll(sweep_presentation, sweep2_presentation, 1000);
