@@ -2,6 +2,7 @@
 #define NUM_LEDS 150
 #define DATA_PIN 13
 #define INPUTPIN 2
+#define BUTTON_COOLDOWN 500
 
 CRGB leds[NUM_LEDS];
 
@@ -12,12 +13,12 @@ unsigned long lastclick = millis();
 void setup() {
   // put your setup code here, to run once:
   FastLED.addLeds<WS2811, DATA_PIN>(leds, NUM_LEDS);
-  pinMode(INPUTPIN, INPUT);
+  pinMode(INPUTPIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(INPUTPIN), inputClick, CHANGE);
 }
 
 void inputClick() {
-  if (millis() - lastclick < 1000) {return;}
+  if (millis() - lastclick < BUTTON_COOLDOWN) {return;}
   if (digitalRead(INPUTPIN)==HIGH) {
     lastclick = millis();
     chosen++;

@@ -61,8 +61,8 @@ def get_maximums_from_urls(urls):
 
 if __name__ == "__main__":
     
-    urls = ["http://192.168.1.189/image.jpg",
-            "http://192.168.1.166/image.jpg"]
+    urls = ["http://192.168.10.43/image.jpg",
+            "http://192.168.10.35:8080/stream/live.jpg"]
 
     cam1_list = []
     cam2_list = []
