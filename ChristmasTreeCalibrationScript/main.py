@@ -62,14 +62,16 @@ def get_maximums_from_urls(urls):
 
 def order_arduino_led_number(arduino_connection, number):
 
-    arduino_connection.write(bytes(str(number)+"\n","ascii"))
-    return_message = ""
-    str_in = arduino_connection.readline()
-    return_message = str(str_in, 'ascii')
-    if (return_message.strip() == '') or (int(return_message) != number):
-        print("Communication error. Sent {} and read back as {}. Resending.".format(
-            number,return_message))
-        order_arduino_led_number(arduino_connection, number)
+    while True:
+        arduino_connection.write(bytes(str(number)+"\n","ascii"))
+        return_message = ""
+        str_in = arduino_connection.readline()
+        return_message = str(str_in, 'ascii')
+        if (return_message.strip() == '') or (int(return_message) != number):
+            print("Communication error. Sent {} and read back as {}. Resending.".format(
+                number,return_message))
+        else:
+            return
 
 def write_out_coords(cam1_coords, cam2_coords):
 
