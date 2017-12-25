@@ -54,7 +54,7 @@ def scale_coordinates(coordinates):
     scaled_x = [(i-min_x)/(max_x-min_x)*100 for i in x_coords]
     scaled_y = [(i-min_y)/(max_y-min_y)*100 for i in y_coords]
     
-    return zip(scaled_x, scaled_y)
+    return list(zip(scaled_x, scaled_y))
 
 def get_maximums_from_urls(urls):
 
@@ -71,6 +71,38 @@ def order_arduino_led_number(arduino_connection, number):
             number,return_message))
         order_arduino_led_number(arduino_connection, number)
 
+def write_out_coords(cam1_coords, cam2_coords):
+
+    xcoord_file = open("XCOORD.txt","w")
+    ycoord_file = open("YCOORD.txt","w")
+    zcoord_file = open("ZCOORD.txt","w")
+
+    x_list =  [i[0] for i in cam1_coords]
+    y_list =  [i[0] for i in cam2_coords]
+    z_list1 = [i[1] for i in cam1_coords]
+    z_list2 = [i[1] for i in cam2_coords]
+
+    z_list = [(z_list1[i] + z_list2[i]) /2 for i in range(len(z_list1))]
+    print(z_list)
+
+    xcoord_file.write("XCOORD["+str(len(x_list))+"] = {\n")
+    for i in x_list:
+        xcoord_file.write(str(i)+",\n")
+    xcoord_file.write("};\n")
+
+    ycoord_file.write("YCOORD["+str(len(y_list))+"] = {\n")
+    for i in y_list:
+        ycoord_file.write(str(i)+",\n")
+    ycoord_file.write("};\n")
+
+    zcoord_file.write("ZCOORD["+str(len(z_list))+"] = {\n")
+    for i in z_list:
+        zcoord_file.write(str(i)+",\n")
+    zcoord_file.write("};\n")
+
+    xcoord_file.close()
+    ycoord_file.close()
+    zcoord_file.close()
 
 if __name__ == "__main__":
     
@@ -124,18 +156,12 @@ if __name__ == "__main__":
                 print(c)
 
 
-        if cmd == "scale":
+        if cmd == "save":
 
             cam1_scaled = scale_coordinates(cam1_list)
             cam2_scaled = scale_coordinates(cam2_list)
-            
-            print("cam1:")
-            for c in cam1_scaled:
-                print(c)
-            print()
-            print("cam2")
-            for c in cam2_scaled:
-                print(c)
+
+            write_out_coords(cam1_scaled, cam2_scaled)
 
         if cmd == "exit":
             break
