@@ -590,6 +590,26 @@ void energy_collapse(int led, unsigned long time) {
   leds[led] = CHSV(dist*dist/100,220,v);
 }
 
+void rising_sectors(int led, unsigned long time) {
+  float x = XCOORD[led];
+  float y = YCOORD[led];
+  float z = ZCOORD[led];
+    
+  int centerx = 50;
+  int centery = 50;
+
+  int sector = 4*float(PI + atan2(YCOORD[led] - centery, XCOORD[led] - centerx))/(2*PI);
+
+  //leds[led] = CHSV(sector * (255.0/6),220,255);
+  //if (ZCOORD[led] > 80)
+  // leds[led] = CHSV(255,0,255);
+
+  float top_glow = ( pow( sin(time/250.0) +  max(ZCOORD[led]-60,0)/3.0, 2) );
+  float phase = max(0,(0.5+sin(ZCOORD[led]/5.0 - sector%2*time/500.0 + (1-sector%2)*time/1000.0))/1.5);
+  leds[led] = CHSV( 128+(sector%2)*128,max(0,128-top_glow), min(255, phase*255 +   top_glow));
+
+}
+
 
 void center_pulse(int led, unsigned long time) {
   int centerx = 50;
@@ -602,6 +622,47 @@ void center_pulse(int led, unsigned long time) {
   else
     leds[led] = CHSV(0,0,0);
   
+}
+
+void rotate_x(float *x, float *y, float *z, float angle) {
+  *y =  *y * cos(angle) - *z * sin(angle);
+  *z =  *y * sin(angle) + *z * cos(angle);
+}
+
+void rotate_y(float *x, float *y, float *z, float angle) {
+  *x =  *x * cos(angle) + *z * sin(angle);
+  *z = -*x * sin(angle) + *z * cos(angle);
+}
+
+void rotate_z(float *x, float *y, float *z, float angle) {
+  *x =  *x * cos(angle) - *y* sin(angle);
+  *y =  *x * sin(angle) + *y* cos(angle);
+}
+
+void rotating_rainbow(int led, unsigned long time) {
+  //[0,100] -> [-0.5,0.5]
+  float x = (XCOORD[led]-50)/100.0;
+  float y = (YCOORD[led]-50)/100.0;
+  float z = (ZCOORD[led]-50)/100.0;
+
+  float x_angle = time/11000.0;
+  float y_angle = time/3000.0;
+  float z_angle = time/7000.0;
+
+  rotate_x( &x,&y,&z, x_angle );
+  rotate_y( &x,&y,&z, y_angle );
+  rotate_z( &x,&y,&z, z_angle );
+
+  //[-0.5,-0.5] -> [0,1]
+  x = x+0.5;
+  y = y+0.5;
+  z = z+0.5;
+  
+  
+  float top_glow = ( pow( sin(time/500.0) +  max(ZCOORD[led]-75,0)/5.0, 2) );
+  
+  leds[led] = CHSV(z*400, max(0,255-top_glow*10) , min(255, top_glow*10 + 100+60*(1+sin(ZCOORD[led]/20.0-time/800.0))));      
+  //leds[led] = CRGB(max(0,min(255,x*255)),max(0,min(255,y*255)),max(0,min(255,z*255)));      
 }
 
 //HELPERS
@@ -635,7 +696,11 @@ void effect_transition_scroll(void (*effect1)(int led, unsigned long time), void
 }
 
 void loop() {
-    run_effect(rainbow_angle, 0, NUM_LEDS, 7000);
+    //run_effect(coolball, 0, NUM_LEDS, 7000);
+    //run_effect(rising_sectors, 0, NUM_LEDS, 7000);
+    run_effect(rotating_rainbow, 0, NUM_LEDS, 7000);
+    
+    //run_effect(rainbow_angle, 0, NUM_LEDS, 7000);
     //effect_transition_scroll(coolball_presentation, sweep_presentation, 1000);
     //run_effect(sweep_presentation, 0, NUM_LEDS, 7000);
     //effect_transition_scroll(sweep_presentation, sweep2_presentation, 1000);
